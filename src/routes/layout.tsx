@@ -28,11 +28,9 @@ export default component$(() => {
   useStyles$(styles);
   return (
     <>
-      <Header />
-      <main>
+      <div>
         <Slot />
-      </main>
-      <Footer />
+      </div>
     </>
   );
 });
