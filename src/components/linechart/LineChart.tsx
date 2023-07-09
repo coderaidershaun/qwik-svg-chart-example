@@ -34,20 +34,39 @@ export default component$(() => {
   const svgRef = useSignal<SVGElement>();
   const rafId = useSignal<any>(null);
 
+  const cursor = useSignal("");
+
   const width = 500;
   const height = 300;
 
   const chartDims: ChartDims = getChartDims(data, width, height);
-
   const points: string = definePoints(data, chartDims);
 
   const handleMouseMove = $((event: QwikMouseEvent<Element, MouseEvent>) => {
     getCoords(rafId, svgRef, event, ([x, y]) => {
-      coords.value = {
-        ...coords.value,
-        x,
-        y,
-      };
+      const isCursorXAxis =
+        x > 0 + chartDims.padding &&
+        x < width - chartDims.padding &&
+        y > height - chartDims.padding &&
+        y < height - 10;
+
+      const isCursorYAxis =
+        x > 0 + chartDims.padding &&
+        x < width - chartDims.padding &&
+        y > height - chartDims.padding &&
+        y < height - 10;
+
+      if (isCursorXAxis) {
+        cursor.value = "ew-resize"; // Change this to your custom class
+      } else {
+        cursor.value = "";
+      }
+
+      // coords.value = {
+      //   ...coords.value,
+      //   x,
+      //   y,
+      // };
     });
   });
 
@@ -58,7 +77,11 @@ export default component$(() => {
       >
         <svg
           viewBox={`0 0 ${width} ${height}`}
-          style={{ border: "0.5px solid #ccc", backgroundColor: "#EFEFEF" }}
+          style={{
+            border: "0.5px solid #ccc",
+            backgroundColor: "#EFEFEF",
+            cursor: `${cursor.value}`,
+          }}
           onMouseMove$={handleMouseMove}
           ref={svgRef}
         >
