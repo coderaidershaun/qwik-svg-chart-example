@@ -1,9 +1,5 @@
 import { component$, useSignal } from "@builder.io/qwik";
-
-export interface Coords {
-  x: number;
-  y: number;
-}
+import type { Coords } from "./LineChart";
 
 type Props = {
   coords: Coords;

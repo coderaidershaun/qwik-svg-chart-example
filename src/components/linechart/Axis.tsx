@@ -1,5 +1,5 @@
 import { component$, type FunctionComponent } from "@builder.io/qwik";
-import type { ChartData, ChartDims } from "~/utils/chart/structure";
+import type { ChartData, ChartDims } from "~/utils/chart/chart-helpers";
 
 interface AxisProps {
   points: string;
@@ -55,7 +55,7 @@ export const LabelsXAxis = component$(({ data, chartDims }: Props) => {
               fontFamily: "Helvetica",
             }}
           >
-            {element.label}
+            {element.x}
           </text>
         );
       })}
@@ -66,6 +66,7 @@ export const LabelsXAxis = component$(({ data, chartDims }: Props) => {
 
 export const LabelsYAxis = component$(({ chartDims }: Props) => {
   const PARTS = chartDims.nHorizGuides;
+
   return (
     <>
       {new Array(PARTS + 1).fill(0).map((_, index) => {
@@ -73,7 +74,6 @@ export const LabelsYAxis = component$(({ chartDims }: Props) => {
         const ratio = (PARTS - index) / chartDims.nHorizGuides;
 
         const yCoordinate =
-          chartDims.chartHeight -
           chartDims.chartHeight * ratio +
           chartDims.padding +
           chartDims.fontSize / 2;

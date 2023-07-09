@@ -1,12 +1,12 @@
 import { component$, Fragment } from "@builder.io/qwik";
-import { ChartDims } from "~/utils/chart/structure";
+import { ChartDims } from "~/utils/chart/chart-helpers";
 
 type Props = {
   chartDims: ChartDims;
 };
 
 export const VerticalGuides = component$(({ chartDims }: Props) => {
-  const guideCount = chartDims.nHorizGuides || chartDims.dataLen - 1;
+  const guideCount = chartDims.nVerticalGuides || chartDims.dataLen - 1;
 
   const startY = chartDims.padding;
   const endY = chartDims.height - chartDims.padding;

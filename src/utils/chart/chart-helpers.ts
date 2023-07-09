@@ -1,5 +1,6 @@
+import type { Signal, QwikMouseEvent } from "@builder.io/qwik";
+
 export interface ChartData {
-  label: string;
   x: number;
   y: number;
 }
@@ -21,18 +22,28 @@ export interface ChartDims {
   nHorizGuides: number;
 }
 
+const calculatePrecision = (num: number): number => {
+  return num < 1 ? 5 : num < 2 ? 2 : 0;
+};
+
 export const getChartDims = (
   data: ChartData[],
   width: number,
-  height: number,
-  precision: number,
-  fontSize: number,
-  nVerticalGuides: number,
-  nHorizGuides: number
+  height: number
 ) => {
+  const fontSize = 8;
+  const nVerticalGuides = Math.ceil(width / 80);
+  const nHorizGuides = Math.ceil(height / 80);
+
+  const buffRatio = 0.1;
+  const maxY = Math.max(...data.map((e) => e.y));
+  const buffer = Math.ceil(maxY * buffRatio);
+
+  const precision = calculatePrecision(Math.abs(maxY));
+
   const maximumXFromData = Math.max(...data.map((e) => e.x)); // points
-  const maximumYFromData = Math.max(...data.map((e) => e.y)) + 200;
-  const minimumYFromData = Math.min(...data.map((e) => e.y)) - 200;
+  const maximumYFromData = maxY + buffer;
+  const minimumYFromData = Math.min(...data.map((e) => e.y)) - buffer;
   const yRange = maximumYFromData - minimumYFromData;
 
   const digits =
@@ -87,4 +98,32 @@ export const definePoints = (data: ChartData[], chartDims: ChartDims) => {
     })
     .join(" ");
   return points;
+};
+
+export const getCoords = (
+  rafId: Signal,
+  svgRef: Signal,
+  event: QwikMouseEvent<Element, MouseEvent>,
+  callback: (coords: [number, number]) => void
+): void => {
+  // Cancel the previous RAF if it hasn't run yet
+  if (rafId.value !== null) {
+    cancelAnimationFrame(rafId.value);
+  }
+
+  // Create new Request Animation Frame
+  // Note: RAF used for smoothness of animation
+  rafId.value = requestAnimationFrame(() => {
+    const svg = svgRef.value as SVGSVGElement;
+    if (svg) {
+      const svgRect = svg.getBoundingClientRect();
+      const scaleX = svg.viewBox?.baseVal.width / svgRect.width;
+      const scaleY = svg.viewBox?.baseVal.height / svgRect.height;
+
+      // Calculate the mouse position relative to the SVG
+      let mouseX = (event.clientX - svgRect.left) * scaleX;
+      let mouseY = (event.clientY - svgRect.top) * scaleY;
+      callback([mouseX, mouseY]);
+    }
+  });
 };

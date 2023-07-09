@@ -2,27 +2,31 @@ import { $, component$, useSignal, useVisibleTask$ } from "@builder.io/qwik";
 import type { DocumentHead } from "@builder.io/qwik-city";
 import type { QwikMouseEvent } from "@builder.io/qwik";
 
+import {
+  getChartDims,
+  definePoints,
+  getCoords,
+  type ChartDims,
+} from "~/utils/chart/chart-helpers";
+
 import { XAxis, YAxis, LabelsXAxis, LabelsYAxis } from "./Axis";
 import { VerticalGuides, HorizontalGuides } from "./Guides";
-import { getChartDims, definePoints } from "~/utils/chart/structure";
-import { Crosshairs, type Coords } from "./Crosshairs";
+import { Crosshairs } from "./Crosshairs";
 
-import { showCrosshairs } from "~/utils/chart/crosshairs";
-import type { ChartDims } from "~/utils/chart/structure";
+export interface Coords {
+  x: number;
+  y: number;
+}
 
 const data = [
-  { label: "S", x: 0, y: 0 },
-  { label: "M", x: 1, y: 400 },
-  { label: "T", x: 2, y: 300 },
-  { label: "W", x: 3, y: 100 },
-  { label: "TH", x: 4, y: 400 },
-  { label: "F", x: 5, y: 500 },
-  { label: "F", x: 6, y: -100 },
-  { label: "F", x: 7, y: -500 },
-  { label: "F", x: 8, y: 420 },
-  { label: "F", x: 9, y: 700 },
-  { label: "F", x: 10, y: 500 },
-  { label: "S", x: 11, y: 550 },
+  { x: 0, y: 0 },
+  { x: 1, y: 400 },
+  { x: 2, y: 300 },
+  { x: 3, y: 100 },
+  { x: 4, y: -100 },
+  { x: 5, y: -150 },
+  { x: 6, y: 400 },
+  { x: 7, y: 700 },
 ];
 
 export default component$(() => {
@@ -32,25 +36,19 @@ export default component$(() => {
 
   const width = 500;
   const height = 300;
-  const precision = 2;
-  const fontSize = 8;
-  const nVerticalGuides = 4;
-  const nHorizGuides = 4;
 
-  const chartDims: ChartDims = getChartDims(
-    data,
-    width,
-    height,
-    precision,
-    fontSize,
-    nVerticalGuides,
-    nHorizGuides
-  );
+  const chartDims: ChartDims = getChartDims(data, width, height);
 
   const points: string = definePoints(data, chartDims);
 
   const handleMouseMove = $((event: QwikMouseEvent<Element, MouseEvent>) => {
-    showCrosshairs(rafId, svgRef, coords, event);
+    getCoords(rafId, svgRef, event, ([x, y]) => {
+      coords.value = {
+        ...coords.value,
+        x,
+        y,
+      };
+    });
   });
 
   return (
